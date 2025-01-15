@@ -1,5 +1,6 @@
 #pragma once
 #include "Tools.h"
+#include "List.h"
 
 class Knock {
 public:
@@ -22,62 +23,20 @@ public:
 
 private:
   unsigned long time_wait_ = 0;
-  unsigned long deviation_ = 200; //погрешность для стуков
+  unsigned long deviation_ = 100; //погрешность для стуков
   
 };
 
+
 class ManegerKnock {
 public:
-  ManegerKnock ():set_knock_(new Knock [10]), capacity_(10)
-  {
-  }
-
-  ManegerKnock (const ManegerKnock& other) = delete; // копирующий конструктор
-  ManegerKnock (ManegerKnock&& other) noexcept{ //перемещающий конструктор
-    this->Swap(other.set_knock_);
-    this->size_ = other.size_;
-    this->capacity_ = other.capacity_;
-    
-  }
-  ManegerKnock& operator=(const ManegerKnock& other) noexcept = delete; // копирующий оператор присваивания
-  ManegerKnock& operator=(ManegerKnock&& other) = delete; //перемещающий оператор присваивания
-
- //также переопредилим деструктор 
-  ~ManegerKnock (){
-    delete []  set_knock_;
-  } 
-
-  void Swap(Knock* other) noexcept {
-    Knock *set_copy = set_knock_;
-    set_knock_ = other;
-    other = nullptr;
-    delete [] set_copy;
-    set_copy = nullptr;
-  }
-
   void AddElem(unsigned long time_wait){
-    if (size_ < capacity_){
-      *(set_knock_ + size_) = Knock(time_wait);
-      size_++;
-    } else {
-      size_t new_capacity = capacity_ * 2;
-      Knock *set_new = new Knock[new_capacity];
-      for (size_t i = 0; i <capacity_; i++ ){
-        *(set_new + i) = *(set_knock_ + i);
-      }
-
-      Swap(set_new);
-      *(set_knock_ + size_) = Knock(time_wait);
-      
-
-      size_++;
-      capacity_ = new_capacity;
-    }
+    list_.AddElem(Knock(time_wait));
   }
 
   void MakeQueueBlink(SwichLed& led, const unsigned long paus){
-    for (size_t i = 0; i < size_ ; i++){
-      Timer paus_time((set_knock_ + i)->GetTime());
+    for (size_t i = 0; i < list_.GetSize(); i++){
+      Timer paus_time(list_[i].GetTime());
       paus_time.StartTime();
       while (!paus_time.IsFinish()){ //  пауза между стуками 
       }
@@ -85,19 +44,17 @@ public:
     }
   }
 
-  const Knock& operator[](size_t index) const noexcept {
-      return *(set_knock_ + index);
+  const size_t GetSize(){
+    return list_.GetSize();
   }
 
-  const size_t GetSize(){
-    return size_;
+  const List<Knock>& GetList(){
+    return list_;
   }
 
 private:
-  Knock *set_knock_ = nullptr;
-  size_t size_ = 0;
-  size_t capacity_ = 0;
-
+  List<Knock> list_;
+  
   void BlinkLed(SwichLed& led, const unsigned long paus){
     led.OnLed();
     Timer blink_time(paus);
@@ -119,15 +76,11 @@ inline bool operator!=(const Knock& lhs, const Knock& rhs){
     return !(lhs == rhs);
 }
 
+
+
 inline bool operator==(const ManegerKnock& lhs, const ManegerKnock& rhs){
-    if (lhs.GetSize() != rhs.GetSize()){
-      return false;
+    if (lhs.GetList() == rhs.GetList()){
+      return true;
     }
-    size_t size = lhs.GetSize();
-    for (size_t i = 0; i < size; i++){
-      if (lhs[i] != rhs[i]){
-        return false;
-      }
-    }
-    return true;
+    return false;
 }
