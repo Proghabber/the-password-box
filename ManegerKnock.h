@@ -30,6 +30,15 @@ private:
 
 class ManegerKnock {
 public:
+  ManegerKnock() = default;
+  
+  ManegerKnock(List<int> list){
+    for (byte i = 0; i < list.GetSize(); i++){
+      AddElem(list[i]);
+    }
+    
+  }
+  
   void AddElem(unsigned long time_wait){
     list_.AddElem(Knock(time_wait));
   }
@@ -37,9 +46,7 @@ public:
   void MakeQueueBlink(SwichLed& led, const unsigned long paus){
     for (size_t i = 0; i < list_.GetSize(); i++){
       Timer paus_time(list_[i].GetTime());
-      paus_time.StartTime();
-      while (!paus_time.IsFinish()){ //  пауза между стуками 
-      }
+      paus_time.WaitTime();//  пауза между стукам
       BlinkLed(led, paus);
     }
   }
@@ -48,7 +55,7 @@ public:
     return list_.GetSize();
   }
 
-  const List<Knock>& GetList(){
+  List<Knock>& GetList(){
     return list_;
   }
 
@@ -58,9 +65,7 @@ private:
   void BlinkLed(SwichLed& led, const unsigned long paus){
     led.OnLed();
     Timer blink_time(paus);
-    blink_time.StartTime();
-    while (!blink_time.IsFinish()){ //  пауза между стуками 
-    }
+    blink_time.WaitTime();//  пауза между стукам
     led.OffLed();
   }
 };
@@ -75,8 +80,6 @@ inline bool operator==(const Knock& lhs, const Knock& rhs){
 inline bool operator!=(const Knock& lhs, const Knock& rhs){
     return !(lhs == rhs);
 }
-
-
 
 inline bool operator==(const ManegerKnock& lhs, const ManegerKnock& rhs){
     if (lhs.GetList() == rhs.GetList()){

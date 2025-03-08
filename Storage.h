@@ -3,25 +3,18 @@
 #include<EEPROM.h>
 #include "List.h"
 
-template <typename Type>
 class Storage {
 public:
-  List<Type> ReadData(){
-    size_type = Readint(0);
+  void Read(List<Knock>& data){
     size_list = Readint(1);
-    List<Type> ret_list;
-    
     for (size_t i = 0; i < size_list; i ++){
-      int data = Readint(address);
-      ret_list.AddElem(data);
+      data.AddElem(Knock(Readint(address)));
       address += size_type;
     }
-
-    return ret_list;
+    address = 2;
   }
 
-  bool WriteData(const List<Type>& data){
-    size_type = sizeof(Type);
+  bool WriteData(List<Knock>& data){
     size_list = data.GetSize();
     if (size_list * size_type > 998){ // нельзя записать больше 1000 байт (998 + 2 для размера массива и размера типа)
                                       // да и динамическая память может не дать это сделать
@@ -29,17 +22,18 @@ public:
     }
     WriteInt(0, size_type);
     WriteInt(1, size_list);
-
+    address = 2;
     for (size_t i = 0; i < size_list; i++){
-      WriteInt(address, data[i]);
+      WriteInt(address, data[i].GetTime());
       address += size_type;
     }
+    address = 2;
     return true;
   }
 
 private:
   byte size_list = 0; //размер массива данных
-  byte size_type = 0; //размер типа данных в байтах
+  const byte size_type = 2; //размер типа данных в байтах
   byte address = 2;  //адрес для записи
 
   unsigned int Readint(byte pos){

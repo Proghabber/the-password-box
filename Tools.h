@@ -21,6 +21,12 @@ public:
     return long(millis() - time_tick_);
   }
 
+  void WaitTime(){ //ожидаем заданое время
+    StartTime();
+    while(!IsFinish()){
+    }
+  }
+
 private:
   const unsigned  time_wait_;
   unsigned long time_tick_ = 0;

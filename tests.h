@@ -87,20 +87,27 @@ void TestResize(Print& port) {
 void TestReadWrite(Print& port){
   port.println("Test ReadWrite");
   const size_t size = 4;
-  List<int> data;
+  ManegerKnock data_1;
 
   int arr[]{100, 200, 300, 400};
   for (size_t i = 0; i < size; i++){
-    data.AddElem(arr[i]);
+    data_1.AddElem(arr[i]);
   }
-  Storage<int> one;
+  Storage one;
   
-  one.WriteData(data);
-  List<int> list = one.ReadData();
-  assertEqual(list.GetSize(), size);
-  for(size_t i = 0; i < list.GetSize(); i++){
-    assertEqual(list[i], data[i]);  
+  one.WriteData(data_1.GetList());
+  ManegerKnock data_2;
+  one.Read(data_2.GetList());
+
+  assertEqual(data_2.GetSize(), size);
+  List<Knock>& list_1 = data_1.GetList();
+  List<Knock>& list_2 = data_2.GetList();
+
+  for (byte i = 0; i < size; i++){
+    assertEqual(list_1[i].GetTime(), list_2[i].GetTime());
   }
+  //assertEqual(data_1.GetList(), data_2.GetList());
+  
 
   port.println("Done!");
 }
