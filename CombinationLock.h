@@ -15,10 +15,13 @@ public:
   {
   }
 
+  void DetermineRod(){
+    Motor_rod_.SearceRod();
+  }
+
   void WaitingEvent(){
     but_save_.tick();
-    
-    if (status_open_ && but_save_.isClick()){// если окрыт и кнопка нажата, то слушаем новый пароль ожидаем три секунды и если кнопка зажата вновь ,то сохраняем пароль
+    if (Motor_rod_.GetPos() && but_save_.isClick()){// если окрыт и кнопка нажата, то слушаем новый пароль ожидаем три секунды и если кнопка зажата вновь ,то сохраняем пароль
       but_save_.tick();
       ManegerKnock pass_new = CreatePass();
       Timer recoder_time(time_listener_);
@@ -39,6 +42,7 @@ public:
         ChengeLock();
       }
     }
+    but_save_.resetStates(); // зашита от случайного нажатия
   }
 
 private:
@@ -51,7 +55,6 @@ private:
   const byte signal_unit_;
   GButton& but_save_;
   Motor& Motor_rod_;
-  bool status_open_ = false;
 
   ManegerKnock ListenPass(){
     ManegerKnock knocker;
@@ -109,13 +112,7 @@ private:
   }
 
   void ChengeLock(){
-    if (status_open_){
-      status_open_ = false;
       Motor_rod_.Motion();
-    } else {
-      status_open_ = true;
-      Motor_rod_.Motion();
-    }
   }
 
 };

@@ -107,8 +107,6 @@ void TestReadWrite(Print& port){
     assertEqual(list_1[i].GetTime(), list_2[i].GetTime());
   }
   //assertEqual(data_1.GetList(), data_2.GetList());
-  
-
   port.println("Done!");
 }
 

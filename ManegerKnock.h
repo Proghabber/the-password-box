@@ -20,7 +20,6 @@ public:
     return deviation_;
   }
 
-
 private:
   unsigned long time_wait_ = 0;
   unsigned long deviation_ = 100; //погрешность для стуков
@@ -35,8 +34,7 @@ public:
   ManegerKnock(List<int> list){
     for (byte i = 0; i < list.GetSize(); i++){
       AddElem(list[i]);
-    }
-    
+    } 
   }
   
   void AddElem(unsigned long time_wait){

@@ -11,7 +11,7 @@ public:
   } 
 
   bool IsFinish(){
-    if (long(time_tick_ + time_wait_ - millis()) > 0){
+    if (long(time_tick_ + time_wait_ - millis()) >= 0){
       return false;
     }
     return true;
@@ -30,7 +30,6 @@ public:
 private:
   const unsigned  time_wait_;
   unsigned long time_tick_ = 0;
-
 };
 
 class SwichLed{
