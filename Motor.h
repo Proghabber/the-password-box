@@ -62,21 +62,9 @@ public:
       position_rod_= true;
     } else {
       driver_.SetMotion(false);
-      Move(pin_led_low_, pin_photo_low_);
+      Move(pin_led_high_, pin_photo_high_);
       position_rod_ = false;
     }
-  }
-
-  void SearceRod(){
-    pin_led_high_.OnLed();
-    pin_led_low_.OnLed();
-    Timer time_led(150);
-    time_led.WaitTime();
-    if (analogRead(pin_photo_high_) > analogRead(pin_photo_low_)){
-      position_rod_ = true;
-    }
-    pin_led_high_.OffLed();
-    pin_led_low_.OffLed();
   }
 
   bool GetPos(){
@@ -84,41 +72,40 @@ public:
   }
   
 private:
-  void StepMove (const uint8_t pin_photo, bool& stop_m, bool& start){ 
-    Timer time_go(4);
-    Timer time_stop(10);
-    int data_p_r = 0;
-
-    if (!stop_m){
-      driver_.Motion(max_spd_);
-    }
-  
-    data_p_r = analogRead(pin_photo);
+  void StepMove (){ 
+    Timer time_go(time_go_);
+    Timer time_stop(time_stop_);
+    driver_.Motion(max_spd_);
     time_go.WaitTime();
-    if (analogRead(pin_photo) - data_p_r > 2 ){
-      start = true;   
-      }
-
     driver_.Stop(max_spd_);
+    driver_.Off_power();
     time_stop.WaitTime();
-    if  (data_p_r - analogRead(pin_photo)  > 2  && start){
-        stop_m = true;
-        driver_.Off_power();
-    } 
   }
 
   void Move(SwichLed& led, const uint8_t pin_photo){
     Timer time_led(100);
-    bool stop = false;
-    bool start_count = false;
-
     led.OnLed();//зажечь светодиод
     time_led.WaitTime();//подождать пока наберет яркость
-  
-    while (stop == false){
-      StepMove (pin_photo, stop, start_count);
+    int stay = analogRead(pin_photo);
+    int tab = 0; 
+    bool stop = false; 
+    while(true){
+      Serial.println(tab);
+      StepMove();
+      if (tab && stay - analogRead(pin_photo) > 1){
+          stop = true;
+        stay = analogRead(pin_photo);
+        tab--;
+      } else if(analogRead(pin_photo) - stay > 1){
+        stay = analogRead(pin_photo);
+        tab ++;
+      }
+      if (tab <= 1 && stop) {
+          break;
+        }
     }
-
+    driver_.Stop(max_spd_);
+    driver_.Off_power();
     led.OffLed(); // погосить светодиод
   }
 
@@ -130,6 +117,10 @@ private:
   uint8_t pin_photo_high_;
   uint8_t pin_photo_low_;
   const uint8_t max_spd_;
-  bool position_rod_ = false;
+  const uint8_t time_led_;
+  const uint8_t time_go_ = 5;
+  const uint8_t time_stop_ = 50;
+  bool position_rod_ = true;
+
 };
  

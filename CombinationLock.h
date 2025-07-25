@@ -15,13 +15,9 @@ public:
   {
   }
 
-  void DetermineRod(){
-    Motor_rod_.SearceRod();
-  }
-
   void WaitingEvent(){
     but_save_.tick();
-    if (Motor_rod_.GetPos() && but_save_.isClick()){// если окрыт и кнопка нажата, то слушаем новый пароль ожидаем три секунды и если кнопка зажата вновь ,то сохраняем пароль
+    if (but_save_.isClick()){// если окрыт и кнопка нажата, то слушаем новый пароль ожидаем три секунды и если кнопка зажата вновь ,то сохраняем пароль
       but_save_.tick();
       ManegerKnock pass_new = CreatePass();
       Timer recoder_time(time_listener_);
@@ -51,7 +47,7 @@ private:
   SwichLed led_repeat_;
   Storage keyhole_;
   const byte paus_ = 80;
-  const byte volume_ = 90;
+  const byte volume_ = 150;
   const byte signal_unit_;
   GButton& but_save_;
   Motor& Motor_rod_;

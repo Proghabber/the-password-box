@@ -4,7 +4,7 @@
 #include "Tools.h"
 #include "Storage.h"
 
-#include "Tests.h"
+#include "tests.h"
 
 
 
@@ -36,6 +36,8 @@ void setup() {
 
   pinMode(forward_pin, OUTPUT);    // Устанавливаем  как выход
   pinMode(back_pin, OUTPUT);    // Устанавливаем  как выход
+  digitalWrite(forward_pin, 0);
+  digitalWrite(back_pin, 0);
   pinMode(lock_led_high, OUTPUT);    // Устанавливаем светодиод
   pinMode(lock_led_low, OUTPUT);    // Устанавливаем светодиод
   pinMode(photo_high, INPUT); // Устанавливаем фоторезистор
@@ -47,7 +49,7 @@ TestMoveConstructor(Serial);
 TestResize(Serial);
 //AlarmPassEvent();
 //TestReadWrite(Serial);
-lock.DetermineRod();
+//lock.DetermineRod();
 }
 
 void AlarmPassEvent(){// если сбился или забыли пароль
@@ -60,6 +62,10 @@ void AlarmPassEvent(){// если сбился или забыли пароль
 
 void loop() {
   lock.WaitingEvent();
+  //uint8_t forward_pin = 9; // mx 1508 A1 пин управления мотором
+//uint8_t back_pin = 10; // mx 1508 A2 пин управления мотором
+  //
+  //analogWrite(back_pin, 100);
   
   
 }

@@ -1,4 +1,5 @@
 #pragma once
+#include <limits.h>
 
 class Timer{
 public:
@@ -7,18 +8,46 @@ public:
   }
 
   void StartTime(){
-      time_tick_ = millis();
+      time_start_ = millis();
+      //если таймер на грани переаолнения, необхолимо учесть что искать конец надо на новом круге отсчета.
+      int64_t randge_time = time_start_ + time_wait_;
+      if (randge_time > ULONG_MAX){
+        time_end_ = randge_time - ULONG_MAX;
+        return;
+      } 
+      time_end_ = randge_time;
   } 
 
   bool IsFinish(){
-    if (long(time_tick_ + time_wait_ - millis()) >= 0){
-      return false;
+    // если таймер переполнился и начал отсчет заново
+    if (time_start_ > time_end_){
+      if (millis() >= time_end_ && millis() < time_start_){
+        return true;
+      } else {
+        return false;
+      }
     }
-    return true;
+    //стандартная не граничная ситуация
+    if (millis() >= time_end_){
+      return true;
+    } 
+    return false;
   }
 
-  const long HowLong(){
-    return long(millis() - time_tick_);
+  const unsigned long HowLong(){
+    // если таймер можкет  переполнился и начать отсчет заново
+    if (time_start_ > time_end_ ){
+      //но еще не произошло переполнение
+      if (millis() >= time_start_){
+        return millis() - time_start_;
+      } else {
+        // если таймер переполнился и начал отсчет заново
+        return ULONG_MAX - time_start_ + millis();
+      }
+    }
+    //стандартная не граничная ситуация
+    return millis() - time_start_;
+    
   }
 
   void WaitTime(){ //ожидаем заданое время
@@ -28,8 +57,9 @@ public:
   }
 
 private:
-  const unsigned  time_wait_;
-  unsigned long time_tick_ = 0;
+  const unsigned long  time_wait_;
+  unsigned long time_start_ = 0;
+  unsigned long time_end_ = 0;
 };
 
 class SwichLed{
