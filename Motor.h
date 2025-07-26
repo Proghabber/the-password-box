@@ -45,26 +45,24 @@ private:
 
 class Motor {
 public:
-  Motor(uint8_t led_high, uint8_t led_low,  uint8_t photo_high, uint8_t photo_low, const uint8_t forward, const uint8_t back, const uint8_t speed):
+  Motor(uint8_t pin_led_level, uint8_t pin_photo_level, const uint8_t forward, const uint8_t back, const uint8_t speed):
   driver_(forward, back),
-  pin_led_high_(led_high),
-  pin_led_low_(led_low),
-  pin_photo_high_(photo_high),
-  pin_photo_low_(photo_low),
+  led_level_(pin_led_level),
+  photo_level_(pin_photo_level),
+  
   max_spd_(speed)
   {
   }
 
   void Motion(){
+    Move();
     if(!position_rod_){
       driver_.SetMotion(true);
-      Move(pin_led_high_, pin_photo_high_);
       position_rod_= true;
-    } else {
-      driver_.SetMotion(false);
-      Move(pin_led_high_, pin_photo_high_);
-      position_rod_ = false;
+      return;
     }
+    driver_.SetMotion(false);
+    position_rod_ = false;
   }
 
   bool GetPos(){
@@ -72,7 +70,7 @@ public:
   }
   
 private:
-  void StepMove (){ 
+  void StepMove(){ 
     Timer time_go(time_go_);
     Timer time_stop(time_stop_);
     driver_.Motion(max_spd_);
@@ -82,22 +80,22 @@ private:
     time_stop.WaitTime();
   }
 
-  void Move(SwichLed& led, const uint8_t pin_photo){
+  void Move(){
     Timer time_led(100);
-    led.OnLed();//зажечь светодиод
+    led_level_.OnLed();//зажечь светодиод
     time_led.WaitTime();//подождать пока наберет яркость
-    int stay = analogRead(pin_photo);
+    int stay = analogRead(photo_level_);
     int tab = 0; 
     bool stop = false; 
     while(true){
-      Serial.println(tab);
+      //Serial.println(tab);
       StepMove();
-      if (tab && stay - analogRead(pin_photo) > 1){
-          stop = true;
-        stay = analogRead(pin_photo);
+      if (tab && stay - analogRead(photo_level_) > 1){
+        stop = true;
+        stay = analogRead(photo_level_);
         tab--;
-      } else if(analogRead(pin_photo) - stay > 1){
-        stay = analogRead(pin_photo);
+      } else if(analogRead(photo_level_) - stay > 1){
+        stay = analogRead(photo_level_);
         tab ++;
       }
       if (tab <= 1 && stop) {
@@ -106,16 +104,14 @@ private:
     }
     driver_.Stop(max_spd_);
     driver_.Off_power();
-    led.OffLed(); // погосить светодиод
+    led_level_.OffLed(); // погасить светодиод
   }
 
   
 
   DriverMotor driver_;
-  SwichLed pin_led_high_;
-  SwichLed pin_led_low_;
-  uint8_t pin_photo_high_;
-  uint8_t pin_photo_low_;
+  SwichLed led_level_;
+  uint8_t photo_level_;
   const uint8_t max_spd_;
   const uint8_t time_led_;
   const uint8_t time_go_ = 5;

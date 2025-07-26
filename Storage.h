@@ -5,13 +5,18 @@
 
 class Storage {
 public:
-  void Read(List<Knock>& data){
+  bool Read(List<Knock>& data){
     size_list = Readint(1);
+    bool success = true;
     for (size_t i = 0; i < size_list; i ++){
-      data.AddElem(Knock(Readint(address)));
+      success = data.AddElem(Knock(Readint(address)));
+      if(!success){
+        break;
+      }
       address += size_type;
     }
     address = 2;
+    return success;
   }
 
   bool WriteData(List<Knock>& data){
